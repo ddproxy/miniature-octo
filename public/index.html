@@ -1,0 +1,103 @@
+<html>
+<head>
+<script type="text/javascript" src="http://www.tatepublishing.net/pt/js/jquery-1.10.1.min.js"></script>
+<script type="text/javascript" src="http://www.tatepublishing.net/pt/js/jquery-ui-1.10.3.min.js"></script>
+<script type="text/javascript" src="http://www.tatepublishing.net:3701/config.js"></script><style type="text/css"></style>
+<script type="text/javascript" src="http://www.tatepublishing.net:3701/admin.js"></script>
+<script type="text/javascript" src="http://www.tatepublishing.net:3701/socket.io/socket.io.js"></script>
+
+<style style="text/css">
+    body {
+        background: rgb(224,224,224);
+        padding: 0;
+        margin: 0;
+    }
+    table {
+        border-spacing: 0;
+        border-collapse: collapse;
+        height: 100%;
+        width: 100%;
+        display:block;
+    }
+    tr {
+        width: 100%;
+        display: block;
+    }
+    th {
+        padding:0;
+        display: inline-block;
+        margin:0;
+        width: 32%;
+    }
+    thead {
+        width: 100%;
+        height:15%;
+        text-align: center;
+        font-size: 2em;
+        display: table-header-group;
+    }
+    tbody {
+        height:100%;
+        display: block;
+        overflow-y: scroll;
+        overflow-x: none;
+    }
+    #option th div{
+        border: 1px black solid;
+        border-radius: 15px;
+        padding: 2px;
+        margin: 2px;
+    }
+    #option th div.active {
+        background: gray;
+    }
+    tr.inserts {
+        background: #FFFF99;
+    }
+    tbody tr {
+        font-weight: bold;
+        padding: 2px;
+        margin: 2px;
+        width: 100%;
+        display: table-row;
+    }
+    td {
+        overflow: auto;
+        display: table-cell;
+        width: 32%;
+        text-align: center;
+        padding: 5px;
+    }
+    tbody td:nth-child(1) {
+        text-align: left;
+    }
+    tbody td:nth-child(2), tbody td:nth-child(3) {
+        width: 16%;
+    }
+</style>
+</head>
+
+<body>
+    <table>
+        <thead>
+            <tr>
+                <td colspan=4><div id="cycle">Cycle</td></td>
+            </tr>    
+            <tr id='option'>
+                <th> <div id='ordered'>Order Scheduled</div></th>
+                <th colspan=2> <div id='bound'>Printed and Bound</div></th>
+                <th> <div id='shipping'>Ready for Shipping and Packaged</div></th>
+            </tr>
+            <tr>
+                <th>Details</th>
+                <th colspan=2 >Ordered</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id='content'>
+        </tbody>
+    </table>
+
+
+</body>
+</html>
