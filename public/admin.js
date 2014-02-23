@@ -24,7 +24,7 @@ window.onload = function() {
 		} else {
 			var reply = false;
 			alert("Authentication failed");
-            window.location = "../";
+//            window.location = "../";
 		}
 	});
 	

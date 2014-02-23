@@ -1,3 +1,4 @@
+#General Extensions
 lib-cov
 *.seed
 *.log
@@ -7,9 +8,17 @@ lib-cov
 *.pid
 *.gz
 
+#Log Files
 pids
 logs
+
+#Result Files
 results
 
+#Debug and Node
 npm-debug.log
 node_modules
+
+#Config files
+public/config.js
+private/config.json
