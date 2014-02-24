@@ -34,11 +34,15 @@ var express = require( "express" );
 
 // Insert custom mysql connection information here
 var db = mysql.createConnection({
-	host: "db.ddproxy.net",
+	host: "dbase.ddproxy.net",
 	user: "game",
 	password: "gametime",
 	database: "gamedatabase"
 });
+// Custom error handler
+    db.on( "error", function( err ) {
+        console.log("Mysql Error:: " + err.code);
+    });
 
 // Check configuration files here
 
@@ -146,27 +150,28 @@ io.sockets.on( 'connection', function( socket ) {
 				db.query("SELECT COUNT(*) as value, uid FROM players WHERE username = ? and password = ?",
 					[username, password],
 					function(err,info) {
-						console.error(err);
-						// Return true or false
-						if(info[0].value == '1') {
-                            socket.emit( 'log', {
-                                reply : info[0].uid
-                            });
-							userCache[username] = {
-                                'uid' : info[0].uid,
-								'username': username,
-								'state': true,
-								'loads': 1,
-								'timestamp': MATH.round(+new Date()/1000)
-							}
-							socket.emit( 'status', {
-								reply : true
-							});
-						} else {
-							socket.emit( 'status', {
-								reply : false
-							});
+                        if(info != null) {
+                            // Return true or false
+                            if(info[0].value == '1') {
+                                socket.emit( 'log', {
+                                    reply : info[0].uid
+                                });
+                                userCache[username] = {
+                                    'uid' : info[0].uid,
+                                    'username': username,
+                                    'state': true,
+                                    'loads': 1,
+                                    'timestamp': MATH.round(+new Date()/1000)
+                                }
+                                socket.emit( 'status', {
+                                    reply : true
+                                });
+                            } else {
+                                socket.emit( 'status', {
+                                    reply : false
+                                });
 						}
+                        }
 					});
     			}	
 	});
