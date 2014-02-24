@@ -11,9 +11,13 @@ window.onload = function() {
      *  Listeners
      *
      */
-    
-    $("#client").on( "click", function() {
+     
+    $("#client").button().on( "click", function() {
         window.location = "client.html";
+    });
+
+    $("#administration").button().on( "click", function() {
+        registerSocket();
     });
 
 
