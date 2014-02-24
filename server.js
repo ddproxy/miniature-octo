@@ -133,7 +133,9 @@ io.sockets.on( 'connection', function( socket ) {
 		var password = data.password;
 		var key = data.key;
 
-		if(userCache[username]) {
+        //console.log("Attempting registration for " + username + " with " + password);
+
+		if(userCache[username] && key != null) {
 			if(userCache[username].key == key && userCache[username].state == true) {
 				// Update cache
 				
@@ -147,21 +149,21 @@ io.sockets.on( 'connection', function( socket ) {
 				}
 			} else {
 				// Authenticate against DB
-				db.query("SELECT COUNT(*) as value, uid FROM players WHERE username = ? and password = ?",
+				db.query("SELECT COUNT(*) as value, id FROM players WHERE username = ? and password = md5( ? )",
 					[username, password],
 					function(err,info) {
+                        console.log(info);
                         if(info != null) {
                             // Return true or false
                             if(info[0].value == '1') {
                                 socket.emit( 'log', {
-                                    reply : info[0].uid
+                                    reply : info[0].id
                                 });
                                 userCache[username] = {
-                                    'uid' : info[0].uid,
+                                    'id' : info[0].id,
                                     'username': username,
                                     'state': true,
-                                    'loads': 1,
-                                    'timestamp': MATH.round(+new Date()/1000)
+                                    'loads': 1
                                 }
                                 socket.emit( 'status', {
                                     reply : true
@@ -170,8 +172,13 @@ io.sockets.on( 'connection', function( socket ) {
                                 socket.emit( 'status', {
                                     reply : false
                                 });
+                            }
+
+                        } else {
+                                socket.emit( 'status', {
+                                    reply : false
+                                });
 						}
-                        }
 					});
     			}	
 	});

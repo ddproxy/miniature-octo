@@ -1,3 +1,6 @@
+body {
+    background: gray;
+}
 #container {
     margin: 20px auto;
     display: block;
