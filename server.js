@@ -32,17 +32,11 @@ var mysql = require("mysql");
 
 var express = require( "express" );
 
-// Insert custom mysql connection information here
-var db = mysql.createConnection({
-	host: "dbase.ddproxy.net",
-	user: "game",
-	password: "gametime",
-	database: "gamedatabase"
-});
-// Custom error handler
-    db.on( "error", function( err ) {
-        console.log("Mysql Error:: " + err.code);
-    });
+// Require Express and cast to app variable
+//var express = require( "express" ); Added to require block
+var app = express();
+
+
 
 // Check configuration files here
 
@@ -68,21 +62,52 @@ fs.exists( "private/config.json", function( exists ) {
 	}
 });
 
+// Load configuration file
+var config = require( "./private/config.json" );
 
+/*****************************
+ *
+ * Loading MySQL
+ *
+ *****************************/
+var dbConfig = {
+    host: config.host,
+    user: config.user,
+    password: config.password,
+    database: config.database
+}
+
+
+// Insert custom mysql connection information here
+var db;
+function handleDisconnect() {
+    db = mysql.createConnection(dbConfig);
+
+    // Custom error handler
+    db.connect(function(err) {
+        if(err) {
+            console.log("Error when connecting to DB:", err);
+            setTimeout(handleDisconnect, 2000);
+        }
+    });
+    db.on( "error", function( err ) {
+        console.log("Mysql Error:: " + err.code);
+        if(err.code === "PROTOCOL_CONNECTION_LOST") {
+            handleDisconnect();
+        } else {
+            throw err;
+        }
+    });
+
+}
+
+handleDisconnect();
 /*******************
 * 
 * Express and Socket.io
 *
 *******************/
 
-
-// Require Express and cast to app variable
-//var express = require( "express" ); Added to require block
-var app = express();
-
-
-// Load configuration file
-var config = require( "./private/config.json" );
 
 app.use( express.static( __dirname + '/public' ) );
 
