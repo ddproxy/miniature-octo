@@ -1,14 +1,8 @@
 /*******************************
 *
-* Auth.js
+* Server.js
 *
-*	Authenticate users information is correct and save to array userCache,
-*	 counts how many times each user loads a new page and the most recent
-*	 timestamp.
-*
-*	Broadcast new information to admin.js admin.php to display activity
-*	 and most recent timestamp. On each page call, cast data as update
-*	 and append to table with new data.
+*	Authenticate users information is correct and save to array userCache.
 *
 ********************************/
 
@@ -146,27 +140,33 @@ io.sockets.on( 'connection', function( socket ) {
 	function cacheUpdate( data ) {
 		
         // Socket room admin emit update
-		io.sockets.to('admin').emit( 'update', {
+		/**
+         * io.sockets.to('admin').emit( 'update', {
 			username: data,
 			loads: userCache[data].loads,
 			timestamp: userCache[data].timestamp,
 	    });
+        **/
     }
 	// On 'register' action
 	socket.on( 'register', function( data ) {
 		var username = data.username;
 		var password = data.password;
-		var key = data.key;
-
+		var key;
+            if(data.key != null) {
+                key = data.key;
+            } else {
+                key = Math.random().toString(36).substring(7);
+            }
         //console.log("Attempting registration for " + username + " with " + password);
 
 		if(userCache[username] && key != null) {
 			if(userCache[username].key == key && userCache[username].state == true) {
-				// Update cache
-				
                 // Socket emit status
 				socket.emit( 'status', {
-					reply : true
+					reply : true,
+                    username: username,
+                    key: key
 					});
 
 				// Update admin page
@@ -188,11 +188,13 @@ io.sockets.on( 'connection', function( socket ) {
                                     'id' : info[0].id,
                                     'username': username,
                                     'state': true,
-                                    'loads': 1
+                                    'key': key
                                 }
-                                socket.emit( 'status', {
-                                    reply : true
-                                });
+                                 socket.emit( 'status', {
+                                    reply : true,
+                                    username: username,
+                                    key: key
+                                    });
                             } else {
                                 socket.emit( 'status', {
                                     reply : false
@@ -207,7 +209,19 @@ io.sockets.on( 'connection', function( socket ) {
 					});
     			}	
 	});
-
+    socket.on( 'logout', function ( data ) {
+        if(data.key != null && data.username != null) {
+            if( userCache[username].key == data.key ) {
+                userCache = $.grep( userCache, function(username) { return value != username; });
+                console.log(username + " has logged out");
+            }
+        } else {
+            // Do nothing
+        }
+    });
+    socket.on( 'test', function ( data ) {
+        console.log( data );
+    });
 	/***************************
 	*
 	* Administrator functions

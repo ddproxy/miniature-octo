@@ -2,7 +2,8 @@ window.onload = function() {
     var ioSocket = 'http://' + hostname + ':' + port;
     var panelScript = ioSocket + '/panel.js';
     var container = document.getElementById("container");
-    var username;
+    var username = getCookie('username');
+    var key = getCookie('key'); 
 	var socket = io.connect( ioSocket );
  
     /**
@@ -16,7 +17,11 @@ window.onload = function() {
     });
 
     $("#administration").button().on( "click", function() {
-        registerSocket(socket);
+        if(key == null) {
+            registerSocket(socket);
+        } else {
+            socket.emit( "register" , { username: username, key: key } );
+        }
     });
 
 
@@ -32,18 +37,21 @@ window.onload = function() {
             console.log("Authentication successful");
             $("#login").dialog("close");
             $( container ).empty();
-            $.getScript( panelScript , function( data, textStatus, jqxhr ) {
-                  console.log( data ); // Data returned
-                  console.log( textStatus ); // Success
-                  console.log( jqxhr.status ); // 200
-                  console.log( "Load was performed." );
-            });
+            setCookie('username',data.username,2);
+            setCookie('key',data.key,2);
+            window.location = "panel.html";
         } else {
             console.log("Authentication not successful");
+            deleteCookie('key');
+            deleteCookie('username');
+            key = null;
+            username = null;
             $("#login").dialog("option","title","Please try again");
 		}
 	});
-	
+    function fetchSocket() {
+        return socket;
+    }
     socket.on( 'update', function ( data ) {
 		console.log(data);
 		
