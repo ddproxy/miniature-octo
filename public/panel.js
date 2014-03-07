@@ -19,7 +19,64 @@ window.onload = function() {
             window.location = "index.html";
 		}
 	});
+    // Logout
+    socket.on( 'logout' , function ( data ) {
+        if( data.reply == true) window.location = "index.html";
+    });
 
+    // Players
+    socket.on( 'players' , function ( data ) {
+        console.log( data );
+        $("#players").empty();
+        $("#players").append("<h2>Players</h2>");
+        $("#players").append("<ul id='player-list'></ul>");
+        $(data).each( function( key, value) {
+            $(value).each( function( key, value) {
+                $("#player-list").append("<li id='" + value.username + "' class='ui-widget-content'>" + value.username + "</li>");
+            });
+        });
+        $("#player-list").selectable();
+    });
+    socket.on( 'player' , function ( data ) {
+        console.log( data );
+    });
+
+    // Characters
+    socket.on( 'characters' , function ( data ) {
+        console.log( data );
+
+    });
+    socket.on( 'character' , function ( data ) {
+        console.log( data );
+
+    });
+
+    // Dungeons
+    socket.on( 'dungeons' , function ( data ) {
+        console.log( data );
+
+    });
+    socket.on( 'dungeon' , function ( data ) {
+        console.log( data );
+
+    });
+
+    // Monsters
+    socket.on( 'monsters' , function ( data ) {
+        console.log( data );
+
+    });
+    socket.on( 'monster' , function ( data ) {
+        console.log( data );
+
+    });
+    
+    // Inventory
+    socket.on( 'inventory' , function ( data ) {
+        console.log( data );
+
+    });
+ 
     var menu = $("<div />", { id: 'menu', class: 'box size11 ui-widget-content', text: username }),
         players = $("<div />", { id: 'players', class: 'box size12 ui-widget-content', text: "Loading players" }),
         characters = $("<div />", { id: 'characters', class: 'box size12 ui-widget-content', text: "Loading Characters" }),
@@ -83,6 +140,7 @@ window.onload = function() {
             $("<a>", {
                 href: '#' + itemData.link,
                 class: p + itemData.link,
+                id: p + itemData.link + "-menu",
                 html: itemData.name
             }));
             if (itemData.sub) {
@@ -102,6 +160,15 @@ window.onload = function() {
             );
         });
         $menu.menu();
+        $(menu).on('click', function( e ) {
+            if($(this).attr('id') != null) {
+                socket.emit( 'menu', {
+                    call: $(e.target).attr('id'),
+                    key: key,
+                    username: username
+                } );
+            }
+        });
+        socket.emit('admin', { data: true });
     });
-
 }

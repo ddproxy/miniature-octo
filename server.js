@@ -96,6 +96,7 @@ function handleDisconnect() {
 }
 
 handleDisconnect();
+
 /*******************
 * 
 * Express and Socket.io
@@ -125,7 +126,7 @@ console.log( "SocketIO is listening to port::" + config.port );
 *
 *******************/
 // userCache -- USer PAssword Cache
-var userCache = {}; // Current 'database' for information and cache
+var userCache = []; // Current 'database' for information and cache
 
 console.log( "Now Ready" );
 
@@ -209,16 +210,6 @@ io.sockets.on( 'connection', function( socket ) {
 					});
     			}	
 	});
-    socket.on( 'logout', function ( data ) {
-        if(data.key != null && data.username != null) {
-            if( userCache[username].key == data.key ) {
-                userCache = $.grep( userCache, function(username) { return value != username; });
-                console.log(username + " has logged out");
-            }
-        } else {
-            // Do nothing
-        }
-    });
     socket.on( 'test', function ( data ) {
         console.log( data );
     });
@@ -227,11 +218,86 @@ io.sockets.on( 'connection', function( socket ) {
 	* Administrator functions
 	*
 	****************************/
-
+    function load( socket ) {
+        var players = [];
+        db.query("SELECT username FROM players WHERE active = 1",
+                function ( err, info ) {
+                    if( err != null) console.log("Error: " + err );
+                    socket.emit('players', info);
+                    console.log( info );
+                });
+    }
 	socket.on( 'admin', function( data ) {
 		socket.join('admin');
 		// console.log(userCache);
 		// Send new administrator the cache
-		io.sockets.socket(socket.id).emit( 'cache', userCache);
-	});
+		//io.sockets.socket(socket.id).emit( 'cache', userCache);
+        load(socket);
+    });
+    /*********************
+     *
+     * Menu actions // From Panel.js
+     *
+     *********************/
+    socket.on( 'menu', function ( data ) {
+        switch (data.call) {
+            case 'logout-menu':
+                if(data.key != null && data.username != null) {
+                    if( userCache[data.username].key == data.key ) {
+                        var index = userCache.indexOf(data.username);
+                        if( index > -1 ) userCache.splice( index, 1);
+//                        userCache = $.grep( userCache, function(data.username) { return value != data.username; });
+                        console.log(data.username + " has logged out");
+                        socket.emit('logout', { reply: true });
+                    }
+                }
+                break;
+            case 'edit-menu':
+                break;
+            case'editplayer-menu':
+                edit('player', data);
+                break;
+            case'editcharacter-menu':
+                edit('character', data);
+                break;
+            case'editdungeon-menu':
+                edit('dungeon', data);
+                break;
+            case'createplayer-menu':
+                create('player', data);
+                break;
+            case'createcharacter-menu':
+                create('character', data);
+                break;
+            case'createdungeon-menu':
+                create('dungeon', data);
+                break;
+            case'account-menu':i
+                account(data);
+                break;
+            default:
+                break;
+        } 
+    });
+
+     /***************************
+     *
+     * Menu Options - Panel
+     * functions called by actions
+     *
+     ***************************/
+    
+    function edit( type, data ) {
+	    db.query("SELECT * FROM ? WHERE ? = ? LIMIT 1",
+                [type, data.id, data.key], function( err, info ) {
+                    socket.emit(type, info);
+        });
+    }
+    function create( type, data) {
+
+    }
+    function account( data ){
+        
+    }
+    
 });
