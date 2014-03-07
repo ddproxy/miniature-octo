@@ -288,8 +288,17 @@ io.sockets.on( 'connection', function( socket ) {
      ***************************/
     
     function edit( type, data ) {
-	    db.query("SELECT * FROM ? WHERE ? = ? LIMIT 1",
-                [type, data.id, data.key], function( err, info ) {
+        var list;
+        console.log(typeof data.data);
+        if( typeof data.data === 'object') {
+            list = data.data.join();
+        }
+        else {
+            list = '';
+        }
+	    db.query("SELECT * FROM ?? WHERE ?? IN( ? ) LIMIT 1",
+                [type + 's', data.id, list], function( err, info ) {
+                    if(err != null) console.log("EDIT ERROR: " + err);
                     socket.emit(type, info);
         });
     }

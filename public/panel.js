@@ -4,6 +4,16 @@ window.onload = function() {
     var username = getCookie('username');
     var key = getCookie('key'); 
 	var socket = io.connect( ioSocket );
+    
+    /*******************************
+     *
+     *  Selected arrays
+     *
+     * *****************************/
+    
+    var selectedPlayer = [],
+        selectedCharacter = [],
+        selectedDungeon = [];
 
     socket.emit( 'register', { username: username, key: key });
 	socket.on('status', function (data) {
@@ -26,7 +36,6 @@ window.onload = function() {
 
     // Players
     socket.on( 'players' , function ( data ) {
-        console.log( data );
         $("#players").empty();
         $("#players").append("<h2>Players</h2>");
         $("#players").append("<ul id='player-list'></ul>");
@@ -35,7 +44,18 @@ window.onload = function() {
                 $("#player-list").append("<li id='" + value.username + "' class='ui-widget-content'>" + value.username + "</li>");
             });
         });
-        $("#player-list").selectable();
+        $("#player-list").selectable(
+            {
+                start: function( e, ui) {
+                    selectedPlayer = [];
+                },
+                selected: function( e, ui ) {
+                    selectedPlayer.push($(ui.selected).attr('id'));
+                },
+                stop: function ( e, ui) {
+                    console.log(selectedPlayer);
+                }
+            });
     });
     socket.on( 'player' , function ( data ) {
         console.log( data );
@@ -44,7 +64,26 @@ window.onload = function() {
     // Characters
     socket.on( 'characters' , function ( data ) {
         console.log( data );
-
+        $("#characters").empty();
+        $("#characters").append("<h2>characters</h2>");
+        $("#characters").append("<ul id='character-list'></ul>");
+        $(data).each( function( key, value) {
+            $(value).each( function( key, value) {
+                $("#character-list").append("<li id='" + value.username + "' class='ui-widget-content'>" + value.username + "</li>");
+            });
+        });
+        $("#character-list").selectable(
+            {
+                start: function( e, ui) {
+                    selectedcharacter = [];
+                },
+                selected: function( e, ui ) {
+                    selectedcharacter.push($(ui.selected).attr('id'));
+                },
+                stop: function ( e, ui) {
+                    console.log(selectedcharacter);
+                }
+            });
     });
     socket.on( 'character' , function ( data ) {
         console.log( data );
@@ -53,8 +92,26 @@ window.onload = function() {
 
     // Dungeons
     socket.on( 'dungeons' , function ( data ) {
-        console.log( data );
-
+        $("#characters").empty();
+        $("#characters").append("<h2>characters</h2>");
+        $("#characters").append("<ul id='character-list'></ul>");
+        $(data).each( function( key, value) {
+            $(value).each( function( key, value) {
+                $("#character-list").append("<li id='" + value.username + "' class='ui-widget-content'>" + value.username + "</li>");
+            });
+        });
+        $("#character-list").selectable(
+            {
+                start: function( e, ui) {
+                    selectedcharacter = [];
+                },
+                selected: function( e, ui ) {
+                    selectedcharacter.push($(ui.selected).attr('id'));
+                },
+                stop: function ( e, ui) {
+                    console.log(selectedcharacter);
+                }
+            });
     });
     socket.on( 'dungeon' , function ( data ) {
         console.log( data );
@@ -161,11 +218,33 @@ window.onload = function() {
         });
         $menu.menu();
         $(menu).on('click', function( e ) {
-            if($(this).attr('id') != null) {
+            if($(e.target).attr('id') != null) {
+                var switched;
+                var id;
+                switch ($(e.target).attr('id')) {
+                    case 'editplayer-menu':
+                        id = 'username';
+                        switched = selectedPlayer;
+                        break;
+                    case 'editcharacter-menu':
+                        id = 'name';
+                        switched = selectedCharacter;
+                        break;
+                    case 'editdungeon-menu':
+                        id = 'designation';
+                        switched = selectedDungeon;
+                        break;
+                    default:
+                        id = "";
+                        switched = "";
+                        break;
+                }
                 socket.emit( 'menu', {
                     call: $(e.target).attr('id'),
                     key: key,
-                    username: username
+                    id: id,
+                    username: username,
+                    data: switched
                 } );
             }
         });
