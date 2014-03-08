@@ -10,8 +10,6 @@ window.onload = function() {
 	var username=getCookie('user');
 	var password=getCookie('pass');
     var page=getCookie('currentPage');
-    var url=document.URL.replace(/http:\/\/www\.tatepublishing\.net/g,"");
-	socket.emit('register', { 'username': username, 'password': password,'page': page, 'url': url});
 
 	socket.on('status', function (data) {
 		// If data contains reply
